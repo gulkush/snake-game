@@ -184,7 +184,7 @@
         <div class="meta">Use arrow keys or swipe / buttons</div>
       </div>
       <div class="score">Score: <span id="score">0</span></div>
-      <div class="timer">Time: <span id="timer">120</span>s</div>
+      <div class="timer">Time: <span id="timer">120s / 120s</span></div>
     </section>
 
     <section class="canvas-wrap">
@@ -295,7 +295,7 @@
 
       function updateTimer() {
         const remaining = Math.max(0, Math.ceil(maxTime - elapsed));
-        timerEl.textContent = String(remaining);
+        timerEl.textContent = `${remaining}s / ${maxTime}s`;
       }
 
       function placeFood() {
