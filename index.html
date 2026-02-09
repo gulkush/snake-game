@@ -127,6 +127,36 @@
       white-space: nowrap;
     }
 
+    .mobile-dpad {
+      display: none;
+      width: min(92vw, 560px);
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      justify-items: center;
+      align-items: center;
+      margin-top: 2px;
+    }
+
+    .mobile-dpad button {
+      width: 100%;
+      max-width: 110px;
+      height: 54px;
+      border: 1px solid #263449;
+      background: #121a27;
+      color: var(--text);
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .mobile-dpad button:active {
+      transform: scale(0.98);
+      background: #162234;
+    }
+
     .message {
       text-align: center;
       color: var(--muted);
@@ -322,6 +352,7 @@
       .hud { flex-direction: column; gap: 8px; align-items: flex-start; }
       .controls { flex-direction: column; }
       .controls button { width: 100%; }
+      .mobile-dpad { display: grid; }
     }
   </style>
 </head>
@@ -364,6 +395,14 @@
       <button id="pauseBtn">Pause</button>
       <button class="toggle" id="soundBtn">Sound: Off</button>
     </section>
+    <section class="mobile-dpad" id="mobileDpad" aria-label="Mobile direction pad">
+      <span></span>
+      <button type="button" data-dir="up" aria-label="Move up">Up</button>
+      <span></span>
+      <button type="button" data-dir="left" aria-label="Move left">Left</button>
+      <button type="button" data-dir="down" aria-label="Move down">Down</button>
+      <button type="button" data-dir="right" aria-label="Move right">Right</button>
+    </section>
 
     <div class="message" id="message">Eat the glow cubes. Avoid walls and yourself.</div>
     <button class="share" id="shareBtn" aria-label="Share score on WhatsApp">Share on WhatsApp</button>
@@ -398,6 +437,7 @@
       const restartBtn = document.getElementById('restartBtn');
       const pauseBtn = document.getElementById('pauseBtn');
       const soundBtn = document.getElementById('soundBtn');
+      const mobileDpadEl = document.getElementById('mobileDpad');
       const leaderboardSectionEl = document.getElementById('leaderboardSection');
       const leaderboardBodyEl = document.getElementById('leaderboardBody');
       const leaderboardToggleBtn = document.getElementById('leaderboardToggleBtn');
@@ -412,7 +452,7 @@
 
       const gridSize = 20;
       const GRID_COLUMNS = 24; // Change this to configure playfield width in cells.
-      const GRID_ROWS = 16; // Change this to configure playfield height in cells.
+      const GRID_ROWS = 20; // Change this to configure playfield height in cells.
       const baseSpeed = 7; // cells per second
       const speedStep = 0.35; // speed increase per food
       const maxSpeed = 16;
@@ -532,6 +572,10 @@
       }
 
       function toggleLeaderboardExpanded() {
+        if (!isGameOver && !isPaused) {
+          setLeaderboardExpanded(false);
+          return;
+        }
         setLeaderboardExpanded(!leaderboardExpanded);
       }
 
@@ -765,6 +809,7 @@
         shareBtn.style.display = 'none';
         pauseBtn.textContent = 'Pause';
         hideLeaderboardEntryForm();
+        setLeaderboardExpanded(false);
       }
 
       function updateScore() {
@@ -834,6 +879,7 @@
         messageEl.innerHTML = `<span class="game-over">${label}</span> — Press Restart or Enter`;
         shareBtn.style.display = 'block';
         sounds.crash();
+        setLeaderboardExpanded(true);
         evaluateLeaderboardAfterGame();
       }
 
@@ -924,6 +970,7 @@
         if (isGameOver) return;
         isPaused = !isPaused;
         pauseBtn.textContent = isPaused ? 'Resume' : 'Pause';
+        if (!isPaused) setLeaderboardExpanded(false);
       }
 
       function toggleSound() {
@@ -1017,6 +1064,16 @@
 
         canvas.addEventListener('touchstart', handleTouchStart, { passive: true });
         canvas.addEventListener('touchmove', handleTouchMove, { passive: true });
+
+        mobileDpadEl.addEventListener('click', (event) => {
+          const button = event.target.closest('button[data-dir]');
+          if (!button) return;
+          const dir = button.dataset.dir;
+          if (dir === 'up') setDirection({ x: 0, y: -1 });
+          if (dir === 'down') setDirection({ x: 0, y: 1 });
+          if (dir === 'left') setDirection({ x: -1, y: 0 });
+          if (dir === 'right') setDirection({ x: 1, y: 0 });
+        });
 
       }
 
