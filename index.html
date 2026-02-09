@@ -163,6 +163,16 @@
       font-size: 0.9rem;
     }
 
+    .visitor-count {
+      width: min(92vw, 560px);
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.82rem;
+      border-top: 1px solid #1f2a3a;
+      padding-top: 10px;
+      margin-top: 6px;
+    }
+
     .game-over {
       color: var(--danger);
       font-weight: 700;
@@ -210,7 +220,7 @@
       font-weight: 700;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       color: var(--accent);
     }
 
@@ -411,6 +421,7 @@
     </section>
 
     <button class="share" id="shareBtn" aria-label="Share score on WhatsApp">Share on WhatsApp</button>
+    <div class="visitor-count" id="visitorCount">Unique visitors: --</div>
   </main>
 
   <script>
@@ -437,6 +448,7 @@
       const restartBtn = document.getElementById('restartBtn');
       const pauseBtn = document.getElementById('pauseBtn');
       const soundBtn = document.getElementById('soundBtn');
+      const visitorCountEl = document.getElementById('visitorCount');
       const mobileDpadEl = document.getElementById('mobileDpad');
       const leaderboardSectionEl = document.getElementById('leaderboardSection');
       const leaderboardBodyEl = document.getElementById('leaderboardBody');
@@ -459,6 +471,10 @@
       const GAME_DURATION_SECONDS = 60; // Change this to configure round time.
       const LEADERBOARD_LIMIT = 20; // Change this to configure weekly leaderboard size.
       const leaderboardCollection = 'snakeLeaderboardEntries';
+      const visitorCollection = 'snakeVisitors';
+      const visitorStatsCollection = 'snakeMeta';
+      const visitorStatsDoc = 'visitorStats';
+      const visitorStorageKey = 'snake_visitor_id';
       const currentWeekKey = getISOWeekKey(new Date());
 
       // Set window.SNAKE_FIREBASE_CONFIG before this script or replace these values directly.
@@ -490,6 +506,59 @@
 
       function getTopLabel() {
         return `Top ${LEADERBOARD_LIMIT}`;
+      }
+
+      function getOrCreateVisitorId() {
+        let visitorId = localStorage.getItem(visitorStorageKey);
+        if (!visitorId) {
+          visitorId = (window.crypto && window.crypto.randomUUID)
+            ? window.crypto.randomUUID()
+            : `v_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+          localStorage.setItem(visitorStorageKey, visitorId);
+        }
+        return visitorId;
+      }
+
+      async function initUniqueVisitorCount() {
+        if (!db) {
+          visitorCountEl.textContent = 'Unique visitors: unavailable';
+          return;
+        }
+
+        visitorCountEl.textContent = 'Unique visitors: loading...';
+        try {
+          const visitorId = getOrCreateVisitorId();
+          const visitorRef = db.collection(visitorCollection).doc(visitorId);
+          const statsRef = db.collection(visitorStatsCollection).doc(visitorStatsDoc);
+
+          await db.runTransaction(async (tx) => {
+            const visitorSnap = await tx.get(visitorRef);
+            const statsSnap = await tx.get(statsRef);
+            const currentCount = (statsSnap.exists && typeof statsSnap.data().uniqueVisitors === 'number')
+              ? statsSnap.data().uniqueVisitors
+              : 0;
+
+            if (!visitorSnap.exists) {
+              tx.set(visitorRef, {
+                createdAtMs: Date.now(),
+                firstSeenAt: firebase.firestore.FieldValue.serverTimestamp(),
+              });
+              tx.set(statsRef, {
+                uniqueVisitors: currentCount + 1,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+              }, { merge: true });
+            }
+          });
+
+          const statsSnap = await db.collection(visitorStatsCollection).doc(visitorStatsDoc).get();
+          const uniqueVisitors = (statsSnap.exists && typeof statsSnap.data().uniqueVisitors === 'number')
+            ? statsSnap.data().uniqueVisitors
+            : 0;
+          visitorCountEl.textContent = `Unique visitors: ${uniqueVisitors}`;
+        } catch (error) {
+          console.error('Unique visitor count failed:', error);
+          visitorCountEl.textContent = 'Unique visitors: unavailable';
+        }
       }
 
       function buildHurdles() {
@@ -572,8 +641,10 @@
       }
 
       function toggleLeaderboardExpanded() {
-        if (!isGameOver && !isPaused) {
-          setLeaderboardExpanded(false);
+        if (!isGameOver && !isPaused && !leaderboardExpanded) {
+          isPaused = true;
+          pauseBtn.textContent = 'Resume';
+          setLeaderboardExpanded(true);
           return;
         }
         setLeaderboardExpanded(!leaderboardExpanded);
@@ -766,6 +837,7 @@
         const hasConfig = firebaseConfig.apiKey && firebaseConfig.projectId && firebaseConfig.appId;
         if (!window.firebase || !window.firebase.firestore || !hasConfig) {
           updateLeaderboardStatus('Set Firebase config to enable weekly leaderboard.');
+          visitorCountEl.textContent = 'Unique visitors: unavailable';
           renderLeaderboard();
           return;
         }
@@ -774,6 +846,7 @@
           if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
           db = firebase.firestore();
           leaderboardReady = true;
+          initUniqueVisitorCount();
           ensureCurrentWeekStorage()
             .then(fetchWeeklyLeaderboard)
             .catch((error) => {
@@ -783,6 +856,7 @@
         } catch (error) {
           console.error('Firebase init failed:', error);
           updateLeaderboardStatus('Leaderboard unavailable. Firebase init failed.');
+          visitorCountEl.textContent = 'Unique visitors: unavailable';
           renderLeaderboard();
         }
       }
