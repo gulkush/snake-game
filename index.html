@@ -376,6 +376,11 @@
         <ol class="leaderboard-list" id="leaderboardList"></ol>
       </div>
     </section>
+    <form class="leaderboard-entry" id="leaderboardEntryForm">
+      <span id="leaderboardEntryPrompt">New weekly top score. Enter your name:</span>
+      <input id="leaderboardNameInput" maxlength="10" autocomplete="nickname" placeholder="Player name" required />
+      <button type="submit" id="leaderboardSubmitBtn">Submit</button>
+    </form>
 
     <section class="hud">
       <div>
@@ -406,11 +411,6 @@
 
     <div class="message" id="message">Eat the glow cubes. Avoid walls and yourself.</div>
     <button class="share" id="shareBtn" aria-label="Share score on WhatsApp">Share on WhatsApp</button>
-    <form class="leaderboard-entry" id="leaderboardEntryForm">
-      <span id="leaderboardEntryPrompt">New weekly top score. Enter your name:</span>
-      <input id="leaderboardNameInput" maxlength="10" autocomplete="nickname" placeholder="Player name" required />
-      <button type="submit" id="leaderboardSubmitBtn">Submit</button>
-    </form>
   </main>
 
   <script>
