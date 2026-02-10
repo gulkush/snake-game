@@ -128,7 +128,7 @@
     }
 
     .mobile-dpad {
-      width: min(92vw, 280px);
+      width: min(92vw, 560px);
       margin-top: 6px;
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -142,7 +142,6 @@
 
     .mobile-dpad button {
       width: 100%;
-      max-width: 128px;
       height: 76px;
       justify-self: center;
       position: relative;
@@ -161,7 +160,6 @@
 
     .mobile-dpad .dpad-up {
       grid-area: up;
-      max-width: none;
     }
 
     .mobile-dpad .dpad-left {
@@ -170,7 +168,6 @@
 
     .mobile-dpad .dpad-down {
       grid-area: down;
-      max-width: none;
     }
 
     .mobile-dpad .dpad-right {
@@ -407,11 +404,7 @@
       .hud { flex-direction: column; gap: 8px; align-items: flex-start; }
       .controls { flex-direction: column; }
       .controls button { width: 100%; }
-      .mobile-dpad {
-        width: min(92vw, 240px);
-      }
       .mobile-dpad button {
-        max-width: none;
         height: 68px;
       }
     }
