@@ -128,18 +128,16 @@
     }
 
     .mobile-dpad {
-      display: none;
+      display: flex;
       width: min(92vw, 560px);
-      grid-template-columns: repeat(3, 1fr);
       gap: 10px;
-      justify-items: center;
       align-items: center;
       margin-top: 2px;
+      flex-wrap: nowrap;
     }
 
     .mobile-dpad button {
-      width: 100%;
-      max-width: 110px;
+      flex: 1 1 0;
       height: 54px;
       border: 1px solid #263449;
       background: #121a27;
@@ -362,7 +360,6 @@
       .hud { flex-direction: column; gap: 8px; align-items: flex-start; }
       .controls { flex-direction: column; }
       .controls button { width: 100%; }
-      .mobile-dpad { display: grid; }
     }
   </style>
 </head>
@@ -407,10 +404,8 @@
     <div class="message" id="message">Eat the glow cubes. Avoid walls and yourself.</div>
 
     <section class="mobile-dpad" id="mobileDpad" aria-label="Mobile direction pad">
-      <span></span>
-      <button type="button" data-dir="up" aria-label="Move up">Up</button>
-      <span></span>
       <button type="button" data-dir="left" aria-label="Move left">Left</button>
+      <button type="button" data-dir="up" aria-label="Move up">Up</button>
       <button type="button" data-dir="down" aria-label="Move down">Down</button>
       <button type="button" data-dir="right" aria-label="Move right">Right</button>
     </section>
