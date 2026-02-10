@@ -128,31 +128,73 @@
     }
 
     .mobile-dpad {
-      display: flex;
-      width: min(92vw, 560px);
-      gap: 10px;
-      align-items: center;
-      margin-top: 2px;
-      flex-wrap: nowrap;
+      width: min(92vw, 220px);
+      height: 220px;
+      margin-top: 6px;
+      position: relative;
+      border-radius: 50%;
+      border: 1px solid #263449;
+      background: radial-gradient(circle at 35% 30%, #19283b 0%, #101a2a 60%, #0d1522 100%);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+      align-self: center;
     }
 
     .mobile-dpad button {
-      flex: 1 1 0;
-      height: 54px;
+      width: 64px;
+      height: 64px;
+      position: absolute;
       border: 1px solid #263449;
       background: #121a27;
       color: var(--text);
-      border-radius: 10px;
+      border-radius: 50%;
       font-weight: 700;
-      font-size: 1rem;
+      font-size: 0.82rem;
       cursor: pointer;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
     }
 
+    .mobile-dpad .dpad-up {
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .mobile-dpad .dpad-left {
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .mobile-dpad .dpad-down {
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .mobile-dpad .dpad-right {
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
     .mobile-dpad button:active {
-      transform: scale(0.98);
       background: #162234;
+      filter: brightness(1.08);
+    }
+
+    .mobile-dpad::after {
+      content: "";
+      position: absolute;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: 1px solid #2c3d57;
+      background: #101827;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
     }
 
     .message {
@@ -360,6 +402,14 @@
       .hud { flex-direction: column; gap: 8px; align-items: flex-start; }
       .controls { flex-direction: column; }
       .controls button { width: 100%; }
+      .mobile-dpad {
+        width: min(92vw, 190px);
+        height: 190px;
+      }
+      .mobile-dpad button {
+        width: 56px;
+        height: 56px;
+      }
     }
   </style>
 </head>
@@ -404,10 +454,10 @@
     <div class="message" id="message">Eat the glow cubes. Avoid walls and yourself.</div>
 
     <section class="mobile-dpad" id="mobileDpad" aria-label="Mobile direction pad">
-      <button type="button" data-dir="left" aria-label="Move left">Left</button>
-      <button type="button" data-dir="up" aria-label="Move up">Up</button>
-      <button type="button" data-dir="down" aria-label="Move down">Down</button>
-      <button type="button" data-dir="right" aria-label="Move right">Right</button>
+      <button class="dpad-up" type="button" data-dir="up" aria-label="Move up">Up</button>
+      <button class="dpad-left" type="button" data-dir="left" aria-label="Move left">Left</button>
+      <button class="dpad-down" type="button" data-dir="down" aria-label="Move down">Down</button>
+      <button class="dpad-right" type="button" data-dir="right" aria-label="Move right">Right</button>
     </section>
     <section class="controls">
       <button class="toggle" id="soundBtn">Sound: Off</button>
